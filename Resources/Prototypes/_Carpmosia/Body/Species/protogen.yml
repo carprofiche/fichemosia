@@ -1,0 +1,46 @@
+- type: entity
+  parent: BaseSpeciesAppearance
+  id: AppearanceProtogen
+  name: protogen appearance
+  components:
+  - type: InitialBody
+    organs:
+      Torso: OrganProtogenTorso
+      Head: OrganProtogenHead
+      ArmLeft: OrganProtogenArmLeft
+      ArmRight: OrganProtogenArmRight
+      HandRight: OrganProtogenHandRight
+      HandLeft: OrganProtogenHandLeft
+      LegLeft: OrganProtogenLegLeft
+      LegRight: OrganProtogenLegRight
+      FootLeft: OrganProtogenFootLeft
+      FootRight: OrganProtogenFootRight
+      Brain: OrganProtogenBrain
+      Eyes: OrganProtogenEyes
+      Tongue: OrganProtogenTongue
+      Appendix: OrganProtogenAppendix
+      Ears: OrganProtogenEars
+      Lungs: OrganProtogenLungs
+      Heart: OrganProtogenHeart
+      Stomach: OrganProtogenStomach
+      Liver: OrganProtogenLiver
+      Kidneys: OrganProtogenKidneys
+  - type: HumanoidProfile
+    species: Protogen
+  - type: Inventory
+    speciesId: protogen
+    femaleDisplacements:
+      jumpsuit:
+        sizeMaps:
+          32:
+            sprite: _Carpmosia/Mobs/Species/Protogen/displacement.rsi
+            state: jumpsuit-female
+
+- type: entity
+  parent:
+  - AppearanceProtogen
+  - BaseSpeciesMobOrganic
+  id: MobProtogen
+  name: Urist McBeepBoop
+
+  
