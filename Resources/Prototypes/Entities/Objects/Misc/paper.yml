@@ -345,6 +345,34 @@
     contentMargin: 16.0, 16.0, 16.0, 16.0
 
 - type: entity
+  name: offical form
+  parent: Paper
+  id: PaperOfficalForm
+  description: 'A single unit of, very serious, bureaucracy.'
+  components:
+  - type: Sprite
+    layers:
+    - state: paper
+      color: "#9ef5ff"
+    - state: paper_words
+      map: ["enum.PaperVisualLayers.Writing"]
+      color: "#9ef5ff"
+      visible: false
+    - state: paper_stamp-generic
+      map: ["enum.PaperVisualLayers.Stamp"]
+      visible: false
+  - type: PaperVisuals
+    backgroundImagePath: "/Textures/Interface/Paper/paper_background_tearoff.96dpi.png"
+    backgroundImageTile: true
+    backgroundPatchMargin: 8.2, 8.2, 40.0, 15.0
+    contentImagePath: "/Textures/Interface/Paper/paper_content_striped.96dpi.png"
+    contentImageNumLines: 1
+    contentImageModulate: '#c9d7ff'
+    contentMargin: 16.0, 16.0, 16.0, 0.0
+    headerImagePath: "/Textures/Interface/Paper/paper_heading_official.svg.192dpi.png"
+    headerMargin: 0.0, 0.0, 5.0, 0.0
+
+- type: entity
   parent: Paper
   id: PaperWritten
   categories: [ HideSpawnMenu ]
