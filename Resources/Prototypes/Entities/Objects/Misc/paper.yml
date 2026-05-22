@@ -345,9 +345,9 @@
     contentMargin: 16.0, 16.0, 16.0, 16.0
 
 - type: entity
-  name: offical form
+  name: official form
   parent: Paper
-  id: PaperOfficalForm
+  id: PaperOfficialForm
   description: 'A single unit of, very serious, bureaucracy.'
   components:
   - type: Sprite
