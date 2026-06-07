@@ -98,6 +98,11 @@
           32:
             sprite: Mobs/Species/Vulpkanin/displacement.rsi
             state: jumpsuit
+      jumpsuit-skirt:
+        sizeMaps:
+          32:
+            sprite: Mobs/Species/Vulpkanin/displacement.rsi
+            state: jumpskirt
       back:
         sizeMaps:
           32:

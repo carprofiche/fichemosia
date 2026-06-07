@@ -62,6 +62,7 @@
   - type: Clothing
     slots: [innerclothing]
     femaleMask: UniformTop
+    displacementSuffix: skirt
 
 - type: entity
   abstract: true

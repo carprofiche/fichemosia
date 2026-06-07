@@ -108,6 +108,13 @@ public sealed partial class ClothingComponent : Component
     /// </summary>
     [DataField]
     public Vector2 Scale = Vector2.One;
+
+    /// <summary>
+    /// A suffix to apply, pointing at an alternative preferred displacement map the wearer may offer.
+    /// </summary>
+    [Access(typeof(ClothingSystem))]
+    [DataField, AutoNetworkedField]
+    public string? DisplacementSuffix;
 }
 
 public enum ClothingMask : byte

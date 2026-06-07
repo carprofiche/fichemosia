@@ -269,7 +269,10 @@ public sealed partial class ClientClothingSystem : ClothingSystem
         var slotLayerExists = _sprite.LayerMapTryGet((equipee, sprite), slot, out var index, false);
 
         // Select displacement maps
-        var displacementData = inventory.Displacements.GetValueOrDefault(slot); //Default unsexed map
+        var suffixComponent = Comp<ClothingComponent>(equipment).DisplacementSuffix;
+        var suffix = !string.IsNullOrEmpty(suffixComponent) ? $"-{suffixComponent}" : "";
+
+        var displacementData = inventory.Displacements.GetValueOrDefault(slot + suffix); //Default unsexed map
 
         var equipeeSex = CompOrNull<HumanoidProfileComponent>(equipee)?.Sex;
         if (equipeeSex != null)
@@ -278,11 +281,11 @@ public sealed partial class ClientClothingSystem : ClothingSystem
             {
                 case Sex.Male:
                     if (inventory.MaleDisplacements.Count > 0)
-                        displacementData = inventory.MaleDisplacements.GetValueOrDefault(slot);
+                        displacementData = inventory.MaleDisplacements.GetValueOrDefault(slot + suffix);
                     break;
                 case Sex.Female:
                     if (inventory.FemaleDisplacements.Count > 0)
-                        displacementData = inventory.FemaleDisplacements.GetValueOrDefault(slot);
+                        displacementData = inventory.FemaleDisplacements.GetValueOrDefault(slot + suffix);
                     break;
             }
         }
