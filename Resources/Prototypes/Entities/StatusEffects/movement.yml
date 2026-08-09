@@ -41,6 +41,11 @@
 
 - type: entity
   parent: StatusEffectSlowdown
+  id: RammingStatusEffect
+  name: Ram Windup
+
+- type: entity
+  parent: StatusEffectSlowdown
   id: TaserSlowdownStatusEffect
   name: shot by taser slowdown
 

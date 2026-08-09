@@ -481,6 +481,20 @@
     event: !type:GravityJumpEvent {}
 
 - type: entity
+  parent: BaseAction
+  id: ActionRam
+  name: Ram
+  description: MESS WITH THE BULL YOU GET THE HORNS GRAHHHHHH
+  components:
+  - type: Action
+    useDelay: 8
+    icon:
+      sprite: _Carpmosia/Interface/Actions/ram.rsi
+      state: icon
+  - type: InstantAction
+    event: !type:RamEvent {}
+
+- type: entity
   parent: BaseToggleAction
   id: ActionToggleRootable
   name: Rootable
