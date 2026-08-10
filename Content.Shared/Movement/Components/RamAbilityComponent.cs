@@ -1,6 +1,7 @@
 using System.ComponentModel.DataAnnotations;
 using Content.Shared.Actions;
 using Content.Shared.Chat.Prototypes;
+using Content.Shared.Damage;
 using Content.Shared.Movement.Systems;
 using Robust.Shared.Audio;
 using Robust.Shared.GameStates;
@@ -80,6 +81,21 @@ public sealed partial class RamAbilityComponent : Component
     /// </summary>
     [DataField, AutoNetworkedField]
     public ProtoId<EmotePrototype>? RunEmote;
+
+    /// <summary>
+    /// Shown to the entity when it can't ram right now. ):
+    /// </summary>
+    [DataField, AutoNetworkedField]
+    public LocId? FailPopup;
+
+    /// <summary>
+    /// Damage dealt when hitting something hard.
+    /// </summary>
+    [DataField, AutoNetworkedField]
+    public DamageSpecifier? BonkDamage = new()
+    {
+        DamageDict = new () { { "Blunt", 10 } },
+    };
 }
 
 public sealed partial class RamEvent : InstantActionEvent;

@@ -1,3 +1,4 @@
+using Content.Shared.Damage;
 using Content.Shared.Movement.Systems;
 using Robust.Shared.GameStates;
 using Robust.Shared.Map;
@@ -20,6 +21,12 @@ public sealed partial class ActiveRamComponent : Component
 
     [AutoNetworkedField]
     public RamState LastState;
+
+    [AutoNetworkedField]
+    public DamageSpecifier? BonkDamage;
+
+    [AutoNetworkedField]
+    public float RamSpeedModifier = 3f;
 }
 
 [Serializable, NetSerializable]

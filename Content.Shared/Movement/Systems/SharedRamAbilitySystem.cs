@@ -5,23 +5,24 @@ using Content.Shared.Actions.Components;
 using Content.Shared.IdentityManagement;
 using Content.Shared.Movement.Components;
 using Content.Shared.Popups;
-using Content.Shared.Stunnable;
 using Robust.Shared.Physics.Events;
 using Robust.Shared.Physics.Systems;
 using Robust.Shared.Timing;
 using Content.Shared.Chat;
+using Content.Shared.Damage.Components;
+using Content.Shared.Damage.Systems;
+using Content.Shared.Gravity;
 using Content.Shared.Interaction.Components;
 using Content.Shared.Jittering;
-using Content.Shared.Throwing;
+using Content.Shared.Standing;
 
 namespace Content.Shared.Movement.Systems;
 
 public sealed partial class SharedRamAbilitySystem : EntitySystem
 {
-    [Dependency] private ThrowingSystem _throwing = default!;
     [Dependency] private SharedActionsSystem _actions = default!;
     [Dependency] private SharedPopupSystem _popup = default!;
-    [Dependency] private SharedStunSystem _stun = default!;
+    [Dependency] private SharedStaminaSystem _stamina = default!;
     [Dependency] private SharedPhysicsSystem _physics = default!;
     [Dependency] private MovementModStatusSystem _movementMod = default!;
     [Dependency] private IGameTiming _timing = default!;
@@ -29,16 +30,15 @@ public sealed partial class SharedRamAbilitySystem : EntitySystem
     [Dependency] private SharedJitteringSystem _jitter = default!;
     [Dependency] private ActionBlockerSystem _blockerSystem = default!;
     [Dependency] private SharedTransformSystem _xform = default!;
-    [Dependency] private SharedMoverController _mover = default!;
+    [Dependency] private DamageableSystem _damage = default!;
+    [Dependency] private SharedGravitySystem _gravity = default!;
+    [Dependency] private StandingStateSystem _standing = default!;
+
 
 
     [Dependency] private EntityQuery<MovementSpeedModifierComponent> _modifierQuery;
-    [Dependency] private EntityQuery<TransformComponent> _xformQuery;
+    [Dependency] private EntityQuery<StaminaComponent> _stamQuery;
 
-    public override void Initialize()
-    {
-        base.Initialize();
-    }
 
     public override void Update(float frameTime)
     {
@@ -53,60 +53,78 @@ public sealed partial class SharedRamAbilitySystem : EntitySystem
                 case RamState.Initial:
                     state.LastState = RamState.Windup;
                     Dirty(entity, state);
-                    WindupTransition(entity, ram);
+                    WindupTransition((entity, ram));
                     continue;
 
                 case RamState.Windup when _timing.CurTime >= state.WindupEndTimestamp:
                     state.LastState = RamState.Running;
                     Dirty(entity, state);
-                    RunTransition(entity, ram);
+                    RunTransition((entity, ram));
                     continue;
 
                 case RamState.Running when !_xform.InRange(Transform(entity).Coordinates, state.RunStartPos, ram.RamLength):
-                    EndTransition(entity, ram);
+                    EndTransition(entity);
                     continue;
             }
 
-            // We don't have anything special to do during the windup. From now on we're running.
             if (state.LastState is RamState.Windup)
                 continue;
 
-            var moveSpeedComponent = _modifierQuery.CompOrNull(entity);
-            var sprintSpeed = moveSpeedComponent?.CurrentSprintSpeed ?? MovementSpeedModifierComponent.DefaultBaseSprintSpeed;
-
-            //_physics.GetLinearVelocity(entity, );
-
-            var worldRot = _xform.GetWorldRotation(entity).RoundToCardinalAngle();
-            var velocity = worldRot.ToWorldVec() * (sprintSpeed * ram.RamSpeedModifier);
-            _physics.SetLinearVelocity(entity, velocity);
+            // We can only be in the running state now.
+            var worldCardinal = GetWorldCardinalVec((entity, Transform(entity)));
+            var ramSpeed = GetRamSpeed((entity, ram));
+            _physics.SetLinearVelocity(entity, worldCardinal * ramSpeed);
         }
     }
 
-    private void WindupTransition(EntityUid entity, RamAbilityComponent ram)
+    private float GetRamSpeed(Entity<RamAbilityComponent> entity)
     {
-        var selfMessage = ram.WindUpPopupSelf.HasValue
-            ? Loc.GetString(ram.WindUpPopupSelf)
+        return GetRamSpeed(entity, entity.Comp.RamSpeedModifier);
+    }
+
+    private float GetRamSpeed(Entity<ActiveRamComponent> entity)
+    {
+        return GetRamSpeed(entity, entity.Comp.RamSpeedModifier);
+    }
+
+    private float GetRamSpeed(EntityUid entity, float ramSpeedModifier)
+    {
+        var sprintSpeed = _modifierQuery.CompOrNull(entity)?.CurrentSprintSpeed ?? MovementSpeedModifierComponent.DefaultBaseSprintSpeed;
+        return sprintSpeed * ramSpeedModifier;
+    }
+
+    private Vector2 GetWorldCardinalVec(Entity<TransformComponent> entity)
+    {
+        var rotation = entity.Comp.LocalRotation;
+        var cardinalWorldRot = _xform.GetWorldRotation(entity.Owner) + (rotation - rotation.GetCardinalDir().ToAngle());
+        return cardinalWorldRot.ToWorldVec();
+    }
+
+    private void WindupTransition(Entity<RamAbilityComponent> entity)
+    {
+        var selfMessage = entity.Comp.WindUpPopupSelf.HasValue
+            ? Loc.GetString(entity.Comp.WindUpPopupSelf)
             : null;
-        var othersMessage = ram.WindUpPopup.HasValue
-            ? Loc.GetString(ram.WindUpPopup, ("name", Identity.Entity(entity, EntityManager)))
+        var othersMessage = entity.Comp.WindUpPopup.HasValue
+            ? Loc.GetString(entity.Comp.WindUpPopup, ("name", Identity.Entity(entity, EntityManager)))
             : null;
         _popup.PopupEntity(selfMessage, othersMessage, entity, entity, PopupType.MediumCaution);
 
         _movementMod.TryAddMovementSpeedModDuration(entity,
             MovementModStatusSystem.Ramming,
-            ram.WindUpDuration,
-            ram.WindUpSpeedModifier);
+            entity.Comp.WindUpDuration,
+            entity.Comp.WindUpSpeedModifier);
     }
 
-    private void RunTransition(EntityUid entity, RamAbilityComponent ram)
+    private void RunTransition(Entity<RamAbilityComponent> entity)
     {
         EnsureComp<BlockMovementComponent>(entity);
         _blockerSystem.UpdateCanMove(entity);
 
-        if (ram.RunEmote.HasValue)
-            _chat.TryEmoteWithChat(entity, ram.RunEmote);
+        if (entity.Comp.RunEmote.HasValue)
+            _chat.TryEmoteWithChat(entity, entity.Comp.RunEmote);
 
-        _jitter.DoJitter(entity, TimeSpan.FromSeconds(0.1), false);
+        _jitter.DoJitter(entity, TimeSpan.FromSeconds(0.15), false);
     }
 
     [SubscribeLocalEvent]
@@ -115,33 +133,42 @@ public sealed partial class SharedRamAbilitySystem : EntitySystem
         if (entity.Comp.LastState != RamState.Running)
             return;
 
-        if ( _xformQuery.CompOrNull(args.OtherEntity)?.Anchored ?? false )
-            _throwing.TryThrow(entity.Owner, Transform(entity.Owner).Coordinates.Offset(new Vector2(0,-1))); // bounce off lol
+        if (args.OtherFixture.Hard && entity.Comp.BonkDamage is not null)
+            _damage.TryChangeDamage(entity.Owner, entity.Comp.BonkDamage);
 
-        EndTransition(entity, args.OtherEntity, Comp<RamAbilityComponent>(entity.Owner));
+        var impulseMod = entity.Comp.RamSpeedModifier * GetRamSpeed(entity);
+        var cardinal = GetWorldCardinalVec((entity.Owner, Transform(entity)));
+        _physics.ApplyLinearImpulse(entity.Owner, Angle.FromDegrees(180).RotateVec(cardinal) * 500f); // bounce off lol
+        _stamina.TakeStaminaDamage(args.OtherEntity, _stamQuery.CompOrNull(args.OtherEntity)?.CritThreshold ?? 0);
+
+        EndTransition(entity.Owner);
     }
 
-    private void EndTransition(EntityUid entity, EntityUid otherEntity, RamAbilityComponent ram)
-    {
-        _stun.TryAddParalyzeDuration(otherEntity, TimeSpan.FromSeconds(3));
-        EndTransition(entity, ram);
-    }
-
-    private void EndTransition(EntityUid entity, RamAbilityComponent ram)
+    private void EndTransition(EntityUid entity)
     {
         RemComp<ActiveRamComponent>(entity);
         RemComp<BlockMovementComponent>(entity);
         _blockerSystem.UpdateCanMove(entity);
-        _stun.TryAddParalyzeDuration(entity, TimeSpan.FromSeconds(3));
+        _stamina.TakeStaminaDamage(entity, _stamQuery.CompOrNull(entity)?.CritThreshold ?? 0, ignoreResist: true);
     }
 
     [SubscribeLocalEvent]
     private void OnRam(Entity<RamAbilityComponent> entity, ref RamEvent args)
     {
-        _jitter.DoJitter(entity, TimeSpan.FromSeconds(0.1), false);
+        if (_gravity.IsWeightless(args.Performer) || _standing.IsDown(args.Performer))
+        {
+            var popup = entity.Comp.FailPopup.HasValue
+                ? Loc.GetString(entity.Comp.FailPopup)
+                : null;
+            _popup.PopupEntity(popup, entity.Owner, entity.Owner);
+            return;
+        }
+        _jitter.DoJitter(entity, TimeSpan.FromSeconds(0.15), false);
         EnsureComp<ActiveRamComponent>(entity, out var state);
         state.WindupEndTimestamp = _timing.CurTime + entity.Comp.WindUpDuration;
         state.RunStartPos = Transform(entity).Coordinates;
+        state.RamSpeedModifier = entity.Comp.RamSpeedModifier;
+        state.BonkDamage = entity.Comp.BonkDamage;
         Dirty(entity, state);
 
         args.Handled = true;
