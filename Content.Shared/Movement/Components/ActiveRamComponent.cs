@@ -13,7 +13,7 @@ namespace Content.Shared.Movement.Components;
 [RegisterComponent, NetworkedComponent, AutoGenerateComponentState, Access(typeof(SharedRamAbilitySystem))]
 public sealed partial class ActiveRamComponent : Component
 {
-    [DataField, AutoNetworkedField]
+    [AutoNetworkedField]
     public TimeSpan WindupEndTimestamp;
 
     [AutoNetworkedField]

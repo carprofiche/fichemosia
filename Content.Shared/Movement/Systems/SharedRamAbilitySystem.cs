@@ -124,7 +124,7 @@ public sealed partial class SharedRamAbilitySystem : EntitySystem
         if (entity.Comp.RunEmote.HasValue)
             _chat.TryEmoteWithChat(entity, entity.Comp.RunEmote);
 
-        _jitter.DoJitter(entity, TimeSpan.FromSeconds(0.15), false);
+        _jitter.DoJitter(entity, TimeSpan.FromSeconds(0.1), false);
     }
 
     [SubscribeLocalEvent]
@@ -138,7 +138,7 @@ public sealed partial class SharedRamAbilitySystem : EntitySystem
 
         var impulseMod = entity.Comp.RamSpeedModifier * GetRamSpeed(entity);
         var cardinal = GetWorldCardinalVec((entity.Owner, Transform(entity)));
-        _physics.ApplyLinearImpulse(entity.Owner, Angle.FromDegrees(180).RotateVec(cardinal) * 500f); // bounce off lol
+        _physics.ApplyLinearImpulse(entity.Owner, Angle.FromDegrees(180).RotateVec(cardinal) * (impulseMod * 25)); // bounce off lol
         _stamina.TakeStaminaDamage(args.OtherEntity, _stamQuery.CompOrNull(args.OtherEntity)?.CritThreshold ?? 0);
 
         EndTransition(entity.Owner);
@@ -163,7 +163,7 @@ public sealed partial class SharedRamAbilitySystem : EntitySystem
             _popup.PopupEntity(popup, entity.Owner, entity.Owner);
             return;
         }
-        _jitter.DoJitter(entity, TimeSpan.FromSeconds(0.15), false);
+        _jitter.DoJitter(entity, TimeSpan.FromSeconds(0.1), false);
         EnsureComp<ActiveRamComponent>(entity, out var state);
         state.WindupEndTimestamp = _timing.CurTime + entity.Comp.WindUpDuration;
         state.RunStartPos = Transform(entity).Coordinates;
