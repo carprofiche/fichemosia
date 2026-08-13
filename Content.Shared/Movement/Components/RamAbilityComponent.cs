@@ -11,7 +11,7 @@ namespace Content.Shared.Movement.Components;
 
 /// <summary>
 /// A component allowing an entity to perform a ram attack.
-/// The action is choreographed into windup -> ram -> ending portions.
+/// The action is choreographed into discrete windup, running, then ending portions.
 /// </summary>
 /// <remarks>
 /// To give the ram action to an entity use <see cref="ActionGrantComponent"/> and <see cref="ItemActionGrantComponent"/>.
@@ -21,7 +21,7 @@ namespace Content.Shared.Movement.Components;
 public sealed partial class RamAbilityComponent : Component
 {
     /// <summary>
-    /// The action prototype that allows you to ram.
+    /// The action prototype and entity that allows you to ram.
     /// </summary>
     [DataField]
     public EntProtoId RamAction = "ActionRam";
@@ -41,76 +41,77 @@ public sealed partial class RamAbilityComponent : Component
     /// The duration of the windup.
     /// </summary>
     [DataField, AutoNetworkedField]
-    public TimeSpan WindUpDuration = TimeSpan.FromSeconds(1.25);
+    public TimeSpan WindupDuration = TimeSpan.FromSeconds(1.25);
 
     /// <summary>
-    /// The speed modifier applied to the entity during windup.
+    /// Speed modifier applied to the entity during the windup.
     /// </summary>
     [DataField, AutoNetworkedField]
-    public float WindUpSpeedModifier = 0.2f;
+    public float WindupSpeedModifier = 0.2f;
 
     /// <summary>
-    /// Shown to everyone in range at the beginning of the windup.
+    /// Shown as an emote at the start of the windup.
     /// </summary>
     [DataField, AutoNetworkedField]
-    public LocId? WindUpPopup = "ram-ability-windup-others";
-
-    /// <summary>
-    /// Shown to the rammer at the beginning of the windup.
-    /// </summary>
-    [DataField, AutoNetworkedField]
-    public LocId? WindUpPopupSelf = "ram-ability-windup-self";
-
-    /// <summary>
-    /// Played at the beginning of the windup.
-    /// </summary>
-    [DataField, AutoNetworkedField]
-    public SoundSpecifier? WindupSound;
+    public (LocId? Text, SoundSpecifier? Sound)? WindupEmote = ("ram-ability-windup", new SoundPathSpecifier("/Audio/Effects/Footsteps/wood4.ogg"));
 
     #endregion
 
-    #region ram
+    #region run
 
     /// <summary>
     /// The length of the ram in tiles.
     /// </summary>
     [DataField, AutoNetworkedField]
-    public float RamLength = 5f;
+    public float RunLength = 5f;
 
     /// <summary>
-    /// This emote is called at the beginning of the run segment.
+    /// How fast the ram will move forward, applied against the entity's sprint speed.
     /// </summary>
     [DataField, AutoNetworkedField]
-    public ProtoId<EmotePrototype>? RunEmote;
+    public float RunSpeedModifier = 3f;
 
     /// <summary>
-    /// The speed modifier that will be applied against the entity's sprint speed during the run.
+    /// Shown as an emote at the start of the run.
     /// </summary>
     [DataField, AutoNetworkedField]
-    public float RamSpeedModifier = 3f;
+    public (LocId? Text, SoundSpecifier? Sound) RunEmote = ("ram-ability-run", new SoundPathSpecifier("/Audio/Effects/Footsteps/wood4.ogg"));
 
     /// <summary>
     /// Used as a step sound during the run segment.
     /// </summary>
     [DataField, AutoNetworkedField]
-    public SoundSpecifier? RunningSound;
+    public SoundSpecifier? RunStepSound = new SoundPathSpecifier("/Audio/Effects/Footsteps/wood4.ogg");
 
     #endregion
 
     #region end
 
     /// <summary>
-    /// The duration that another entity will be stunned for when rammed.
-    /// If null, it will be stunned for the same amount of time as the ramming entity.
+    /// The amount of stamina damage given to the rammer when the action ends.
+    /// If null, will guarantee stamcrit.
     /// </summary>
     [DataField, AutoNetworkedField]
-    public TimeSpan? OtherStunDuration = null;
+    public float? SelfStaminaDamage;
 
     /// <summary>
-    /// Damage dealt when hitting something hard.
+    /// The amount of stamina damage given to an entity if it collides with the rammer.
+    /// If null, will guarantee stamcrit.
+    /// </summary>
+    [DataField, AutoNetworkedField]
+    public float? OtherStaminaDamage;
+
+    /// <summary>
+    /// Damage dealt when hitting something a hard fixture (solid collision).
     /// </summary>
     [DataField, AutoNetworkedField]
     public DamageSpecifier? BonkDamage;
+
+    /// <summary>
+    /// Damage dealt when hitting something a hard fixture (solid collision).
+    /// </summary>
+    [DataField, AutoNetworkedField]
+    public SoundSpecifier? BonkSound = new SoundPathSpecifier("/Audio/Effects/hit_kick.ogg");
 
     #endregion
 }
