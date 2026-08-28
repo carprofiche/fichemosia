@@ -1,0 +1,19 @@
+﻿- type: species
+  id: Ferrodae
+  name: species-name-ferrodae
+  roundStart: true
+  prototype: MobFerrodae
+  defaultSkinTone: "#ffffff"
+  dollPrototype: AppearanceFerrodae
+  skinColoration: Hues
+  maleFirstNames: NamesFerrodae
+  femaleFirstNames: NamesFerrodae
+  naming: First
+  sexes:
+  - Unsexed
+  defaultSoundsBySex:
+  - UnisexFerrodae
+  - UnisexFerrodae
+  - UnisexFerrodae
+  voices:
+  - UnisexFerrodae

@@ -1,0 +1,54 @@
+﻿{
+    "version": 1,
+    "license": "CC0-1.0",
+    "copyright": "Made by ultrafiche on Github.",
+    "size": {
+        "x": 32,
+        "y": 32
+    },
+    "load": {
+        "srgb": false
+    },
+    "states": [
+        {
+            "name": "back",
+            "directions": 4
+        },
+        {
+            "name": "ears",
+            "directions": 4
+        },
+        {
+            "name": "eyes",
+            "directions": 4
+        },
+        {
+            "name": "hand",
+            "directions": 4
+        },
+        {
+            "name": "hand_l",
+            "directions": 4
+        },
+        {
+            "name": "hand_r",
+            "directions": 4
+        },
+        {
+            "name": "head",
+            "directions": 4
+        },
+        {
+            "name": "jumpsuit",
+            "directions": 4
+        },
+        {
+            "name": "neck",
+            "directions": 4
+        },
+        {
+            "name": "outer",
+            "directions": 4
+        }
+    ]
+}

@@ -1,0 +1,19 @@
+﻿{
+    "version": 1,
+    "license": "CC-BY-SA-3.0",
+    "copyright": "Made by ultrafiche on github.",
+    "size": {
+        "x": 32,
+        "y": 32
+    },
+    "states": [
+        {
+            "name": "crt",
+            "directions": 4
+        },
+        {
+            "name": "eyes",
+            "directions": 4
+        }
+    ]
+}

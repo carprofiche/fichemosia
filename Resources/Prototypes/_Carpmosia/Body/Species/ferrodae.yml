@@ -1,0 +1,272 @@
+﻿- type: markingsGroup
+  parent: Undergarments
+  id: Ferrodae
+  limits:
+    #enum.HumanoidVisualLayers.Hair:
+    #  limit: 0
+    #  required: false
+    #enum.HumanoidVisualLayers.FacialHair:
+    #  limit: 0
+    #  required: false
+    enum.HumanoidVisualLayers.Tail:
+      limit: 1
+      required: true
+      default: [ FerrodaeTailDocked ]
+    enum.HumanoidVisualLayers.Chest:
+      limit: 1
+      required: false
+    enum.HumanoidVisualLayers.Snout:
+      limit: 1
+      required: true
+      default: [ FerrodaeCRT ]
+    enum.HumanoidVisualLayers.HeadSide:
+      limit: 1
+      required: true
+      default: [ FerrodaeEars ]
+    enum.HumanoidVisualLayers.HeadTop:
+      limit: 1
+      required: false
+    enum.HumanoidVisualLayers.LArm:
+      limit: 1
+      required: false
+    enum.HumanoidVisualLayers.RArm:
+      limit: 1
+      required: false
+    enum.HumanoidVisualLayers.LHand:
+      limit: 1
+      required: false
+    enum.HumanoidVisualLayers.RHand:
+      limit: 1
+      required: false
+    enum.HumanoidVisualLayers.LLeg:
+      limit: 1
+      required: true
+      default: [ FerrodaeLeftLegColor ]
+    enum.HumanoidVisualLayers.RLeg:
+      limit: 1
+      required: true
+      default: [ FerrodaeRightLegColor ]
+    enum.HumanoidVisualLayers.LFoot:
+      limit: 1
+      required: false
+    enum.HumanoidVisualLayers.RFoot:
+      limit: 1
+      required: false
+
+- type: entity
+  parent: BaseSpeciesAppearance
+  id: AppearanceFerrodae
+  categories: [ HideSpawnMenu ]
+  name: ferrodae appearance
+  components:
+  - type: Inventory
+    speciesId: ferrodae
+    displacements:
+      jumpsuit:
+        sizeMaps:
+          32:
+            sprite: Mobs/Species/Vox/displacement.rsi
+            state: jumpsuit
+      eyes:
+        sizeMaps:
+          32:
+            sprite: Mobs/Species/Vox/displacement.rsi
+            state: eyes
+      gloves:
+        sizeMaps:
+          32:
+            sprite: Mobs/Species/Vox/displacement.rsi
+            state: hand
+      head:
+        sizeMaps:
+          32:
+            sprite: Mobs/Species/Vox/displacement.rsi
+            state: head
+      neck:
+        sizeMaps:
+          32:
+            sprite: Mobs/Species/Vox/displacement.rsi
+            state: neck
+      back:
+        sizeMaps:
+          32:
+            sprite: Mobs/Species/Vox/displacement.rsi
+            state: back
+      ears:
+        sizeMaps:
+          32:
+            sprite: Mobs/Species/Vox/displacement.rsi
+            state: ears
+  - type: Hands
+    leftHandDisplacement:
+      sizeMaps:
+        32:
+          sprite: Mobs/Species/Vox/displacement.rsi
+          state: hand_l
+    rightHandDisplacement:
+      sizeMaps:
+        32:
+          sprite: Mobs/Species/Vox/displacement.rsi
+          state: hand_r
+  - type: InitialBody
+    organs:
+      Torso: OrganFerrodaeTorso
+      Head: OrganFerrodaeHead
+      ArmLeft: OrganFerrodaeArmLeft
+      ArmRight: OrganFerrodaeArmRight
+      HandRight: OrganFerrodaeHandRight
+      HandLeft: OrganFerrodaeHandLeft
+      LegLeft: OrganFerrodaeLegLeft
+      LegRight: OrganFerrodaeLegRight
+      Brain: OrganFerrodaeBrain
+      Eyes: OrganFerrodaeEyes
+      Ears: OrganFerrodaeEars
+      Lungs: OrganFerrodaeLungs
+      Heart: OrganFerrodaeHeart
+      Stomach: OrganFerrodaeStomach
+      Liver: OrganFerrodaeLiver
+      Kidneys: OrganFerrodaeKidneys
+  - type: HumanoidProfile
+    species: Ferrodae
+
+- type: entity
+  parent:
+  - AppearanceFerrodae
+  - BaseSpeciesMobOrganic
+  id: MobFerrodae
+  name: Urist McBaaaah
+  components:
+  - type: TypingIndicator
+    proto: ferrodae
+  - type: Butcherable
+    spawned:
+    - id: MicroManipulatorStockPart
+      amount: 1
+    - id: FoodMeat
+      amount: 3
+  - type: Damageable
+    damageModifierSet: Scale
+
+- type: entity
+  parent: OrganBaseOrganic
+  id: OrganFerrodae
+  abstract: true
+  suffix: Ferrodae
+
+- type: entity
+  id: OrganFerrodaeMetabolizer
+  abstract: true
+  components:
+  - type: Metabolizer
+    metabolizerTypes: [ Animal ]
+
+- type: entity
+  parent: OrganFerrodae
+  id: OrganFerrodaeInternal
+  abstract: true
+  components:
+  - type: Sprite
+    sprite: _Carpmosia/Mobs/Species/Ferrodae/organs.rsi
+
+- type: entity
+  parent: OrganFerrodae
+  id: OrganFerrodaeExternal
+  abstract: true
+  components:
+  - type: Sprite
+    sprite: _Carpmosia/Mobs/Species/Ferrodae/parts.rsi
+  - type: VisualOrgan
+    data:
+      sprite: _Carpmosia/Mobs/Species/Ferrodae/parts.rsi
+  - type: VisualOrganMarkings
+    markingData:
+      group: Ferrodae
+
+- type: entity
+  parent: [ OrganBaseTorso, OrganFerrodaeExternal ]
+  id: OrganFerrodaeTorso
+  components:
+  - type: VisualOrganMarkings
+    hideableLayers:
+    - enum.HumanoidVisualLayers.Tail
+
+- type: entity
+  parent: [ OrganBaseHead, OrganFerrodaeExternal ]
+  id: OrganFerrodaeHead
+  components:
+  - type: VisualOrganMarkings
+    hideableLayers:
+    - enum.HumanoidVisualLayers.Snout
+    - enum.HumanoidVisualLayers.HeadTop
+    - enum.HumanoidVisualLayers.HeadSide
+
+- type: entity
+  parent: [ OrganBaseArmLeft, OrganFerrodaeExternal ]
+  id: OrganFerrodaeArmLeft
+
+- type: entity
+  parent: [ OrganBaseArmRight, OrganFerrodaeExternal ]
+  id: OrganFerrodaeArmRight
+
+- type: entity
+  parent: [ OrganBaseHandLeft, OrganFerrodaeExternal ]
+  id: OrganFerrodaeHandLeft
+
+- type: entity
+  parent: [ OrganBaseHandRight, OrganFerrodaeExternal ]
+  id: OrganFerrodaeHandRight
+
+- type: entity
+  parent: [ OrganBaseLegLeft, OrganFerrodaeExternal ]
+  id: OrganFerrodaeLegLeft
+
+- type: entity
+  parent: [ OrganBaseLegRight, OrganFerrodaeExternal ]
+  id: OrganFerrodaeLegRight
+
+- type: entity
+  parent: [ OrganBaseFootLeft, OrganFerrodaeExternal ]
+  id: OrganFerrodaeFootLeft
+
+- type: entity
+  parent: [ OrganBaseFootRight, OrganFerrodaeExternal ]
+  id: OrganFerrodaeFootRight
+
+- type: entity
+  parent: [ OrganBaseBrain, OrganFerrodaeInternal ]
+  id: OrganFerrodaeBrain
+
+- type: entity
+  parent: [ OrganBaseEyes, OrganFerrodaeInternal, OrganFerrodaeExternal ]
+  id: OrganFerrodaeEyes
+  components:
+  - type: VisualOrgan
+    data:
+      sprite: _Carpmosia/Mobs/Customization/Ferrodae/screens.rsi
+      state: eyes
+
+- type: entity
+  parent: [ OrganBaseEars, OrganFerrodaeInternal ]
+  id: OrganFerrodaeEars
+
+- type: entity
+  parent: [ OrganBaseLungs, OrganFerrodaeInternal, OrganFerrodaeMetabolizer ]
+  id: OrganFerrodaeLungs
+
+- type: entity
+  parent: [ OrganBaseHeart, OrganFerrodaeInternal, OrganFerrodaeMetabolizer ]
+  id: OrganFerrodaeHeart
+
+- type: entity
+  parent: [ OrganBaseLiver, OrganFerrodaeInternal, OrganFerrodaeMetabolizer ]
+  id: OrganFerrodaeLiver
+
+- type: entity
+  parent: [ OrganBaseKidneys, OrganFerrodaeInternal, OrganFerrodaeMetabolizer ]
+  id: OrganFerrodaeKidneys
+
+- type: entity
+  parent: [ OrganBaseStomach, OrganFerrodaeInternal, OrganFerrodaeMetabolizer ]
+  id: OrganFerrodaeStomach
+  components:
+  - type: Stomach
