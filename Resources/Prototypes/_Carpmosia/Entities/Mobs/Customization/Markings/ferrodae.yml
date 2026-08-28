@@ -1,4 +1,5 @@
 ﻿# Faces
+
 - type: marking
   id: FerrodaeCRT
   bodyPart: Snout
@@ -13,7 +14,36 @@
         !type:SimpleColoring
         color: "#ffffff"
 
+- type: marking
+  id: FerrodaeLCDLight
+  bodyPart: Snout
+  forcedColoring: true
+  groupWhitelist: [ Ferrodae ]
+  sprites:
+  - sprite: _Carpmosia/Mobs/Customization/Ferrodae/screens.rsi
+    state: lcdlight
+  coloring:
+    default:
+      type:
+        !type:SimpleColoring
+        color: "#ffffff"
+
+- type: marking
+  id: FerrodaeLCDDark
+  bodyPart: Snout
+  forcedColoring: true
+  groupWhitelist: [ Ferrodae ]
+  sprites:
+  - sprite: _Carpmosia/Mobs/Customization/Ferrodae/screens.rsi
+    state: lcddark
+  coloring:
+    default:
+      type:
+        !type:SimpleColoring
+        color: "#ffffff"
+
 # Body parts
+
 - type: marking
   id: FerrodaeTailDocked
   bodyPart: Tail
@@ -22,6 +52,10 @@
   sprites:
   - sprite: _Carpmosia/Mobs/Customization/Ferrodae/parts.rsi
     state: tail
+  coloring:
+    default:
+      type:
+        !type:SkinColoring
 
 - type: marking
   id: FerrodaeEars
@@ -31,6 +65,10 @@
   sprites:
   - sprite: _Carpmosia/Mobs/Customization/Ferrodae/parts.rsi
     state: ears
+  coloring:
+    default:
+      type:
+        !type:SkinColoring
 
 - type: marking
   id: FerrodaeLeftLegColor
@@ -59,3 +97,35 @@
       type:
         !type:SimpleColoring
         color: "#ffffff"
+
+
+- type: marking
+  id: FerrodaeLeftHandColor
+  bodyPart: Lhand
+  forcedColoring: true
+  groupWhitelist: [ Ferrodae ]
+  sprites:
+  - sprite: _Carpmosia/Mobs/Customization/Ferrodae/parts.rsi
+    state: l_hand
+  coloring:
+    default:
+      type:
+        !type:SimpleColoring
+        color: "#ffffff"
+
+- type: marking
+  id: FerrodaeRightHandColor
+  bodyPart: RHand
+  forcedColoring: true
+  groupWhitelist: [ Ferrodae ]
+  sprites:
+  - sprite: _Carpmosia/Mobs/Customization/Ferrodae/parts.rsi
+    state: r_hand
+  coloring:
+    default:
+      type:
+        !type:SimpleColoring
+        color: "#ffffff"
+
+# Horns
+

@@ -12,7 +12,19 @@
             "directions": 4
         },
         {
+            "name": "lcdlight",
+            "directions": 4
+        },
+        {
+            "name": "lcddark",
+            "directions": 4
+        },
+        {
             "name": "eyes",
+            "directions": 4
+        },
+        {
+            "name": "eyes_dead",
             "directions": 4
         }
     ]
