@@ -1,6 +1,7 @@
 ﻿- type: markingsGroup
   parent: Undergarments
   id: Ferrodae
+  onlyGroupWhitelisted: true
   limits:
     enum.HumanoidVisualLayers.Hair:
       limit: 0
@@ -13,16 +14,19 @@
       required: true
       default: [ FerrodaeTailDocked ]
     enum.HumanoidVisualLayers.Chest:
-      limit: 1
+      limit: 2
       required: false
     enum.HumanoidVisualLayers.Snout:
       limit: 1
       required: true
       default: [ FerrodaeCRT ]
-    enum.HumanoidVisualLayers.HeadSide:
+    enum.HumanoidVisualLayers.Head:
       limit: 1
       required: true
       default: [ FerrodaeEars ]
+    enum.HumanoidVisualLayers.HeadSide:
+      limit: 99
+      required: false
     enum.HumanoidVisualLayers.HeadTop:
       limit: 1
       required: false

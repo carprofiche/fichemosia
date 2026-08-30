@@ -1,5 +1,4 @@
 ﻿# Faces
-
 - type: marking
   id: FerrodaeCRT
   bodyPart: Snout
@@ -43,7 +42,6 @@
         color: "#ffffff"
 
 # Body parts
-
 - type: marking
   id: FerrodaeTailDocked
   bodyPart: Tail
@@ -59,7 +57,7 @@
 
 - type: marking
   id: FerrodaeEars
-  bodyPart: HeadSide
+  bodyPart: Head
   forcedColoring: false
   groupWhitelist: [ Ferrodae ]
   sprites:
@@ -98,7 +96,6 @@
         !type:SimpleColoring
         color: "#ffffff"
 
-
 - type: marking
   id: FerrodaeLeftHandColor
   bodyPart: Lhand
@@ -128,4 +125,266 @@
         color: "#ffffff"
 
 # Horns
+- type: marking
+  id: FerrodaeAntlers
+  bodyPart: HeadTop
+  forcedColoring: false
+  groupWhitelist: [ Ferrodae ]
+  sprites:
+  - sprite: _Carpmosia/Mobs/Customization/Ferrodae/horns.rsi
+    state: antlers
+  coloring:
+    default:
+      type:
+        !type:SimpleColoring
+        color: "#505050"
 
+- type: marking
+  id: FerrodaeAyrshire
+  bodyPart: HeadTop
+  forcedColoring: false
+  groupWhitelist: [ Ferrodae ]
+  sprites:
+  - sprite: _Carpmosia/Mobs/Customization/Ferrodae/horns.rsi
+    state: ayrshire
+  coloring:
+    default:
+      type:
+        !type:SimpleColoring
+        color: "#505050"
+
+- type: marking
+  id: FerrodaeBighorn
+  bodyPart: HeadTop
+  forcedColoring: false
+  groupWhitelist: [ Ferrodae ]
+  sprites:
+  - sprite: _Carpmosia/Mobs/Customization/Ferrodae/horns.rsi
+    state: bighorn
+  coloring:
+    default:
+      type:
+        !type:SimpleColoring
+        color: "#505050"
+
+- type: marking
+  id: FerrodaePoke
+  bodyPart: HeadTop
+  forcedColoring: false
+  groupWhitelist: [ Ferrodae ]
+  sprites:
+  - sprite: _Carpmosia/Mobs/Customization/Ferrodae/horns.rsi
+    state: poke
+  coloring:
+    default:
+      type:
+        !type:SimpleColoring
+        color: "#505050"
+
+- type: marking
+  id: FerrodaeSmallAntlers
+  bodyPart: HeadTop
+  forcedColoring: false
+  groupWhitelist: [ Ferrodae ]
+  sprites:
+  - sprite: _Carpmosia/Mobs/Customization/Ferrodae/horns.rsi
+    state: small_antlers
+  coloring:
+    default:
+      type:
+        !type:SimpleColoring
+        color: "#505050"
+
+# Horns w/ decoration
+- type: marking
+  id: FerrodaeAntlersDecorated
+  bodyPart: HeadTop
+  forcedColoring: false
+  groupWhitelist: [ Ferrodae ]
+  sprites:
+  - sprite: _Carpmosia/Mobs/Customization/Ferrodae/horns.rsi
+    state: antlers
+  - sprite: _Carpmosia/Mobs/Customization/Ferrodae/horns.rsi
+    state: antlers_decoration
+  coloring:
+    default:
+      type:
+        !type:SimpleColoring
+        color: "#505050"
+
+- type: marking
+  id: FerrodaeBighornDecorated
+  bodyPart: HeadTop
+  forcedColoring: false
+  groupWhitelist: [ Ferrodae ]
+  sprites:
+  - sprite: _Carpmosia/Mobs/Customization/Ferrodae/horns.rsi
+    state: bighorn
+  - sprite: _Carpmosia/Mobs/Customization/Ferrodae/horns.rsi
+    state: bighorn_decoration
+  coloring:
+    default:
+      type:
+        !type:SimpleColoring
+        color: "#505050"
+
+- type: marking
+  id: FerrodaePokeDecorated
+  bodyPart: HeadTop
+  forcedColoring: false
+  groupWhitelist: [ Ferrodae ]
+  sprites:
+  - sprite: _Carpmosia/Mobs/Customization/Ferrodae/horns.rsi
+    state: poke
+  - sprite: _Carpmosia/Mobs/Customization/Ferrodae/horns.rsi
+    state: poke_decoration
+  coloring:
+    default:
+      type:
+        !type:SimpleColoring
+        color: "#505050"
+
+- type: marking
+  id: FerrodaeSmallAntlersDecorated
+  bodyPart: HeadTop
+  forcedColoring: false
+  groupWhitelist: [ Ferrodae ]
+  sprites:
+  - sprite: _Carpmosia/Mobs/Customization/Ferrodae/horns.rsi
+    state: small_antlers
+  - sprite: _Carpmosia/Mobs/Customization/Ferrodae/horns.rsi
+    state: small_antlers_decoration
+  coloring:
+    default:
+      type:
+        !type:SimpleColoring
+        color: "#505050"
+
+# Jewelry
+- type: marking
+  id: FerrodaeEarringLeft
+  bodyPart: HeadSide
+  forcedColoring: false
+  groupWhitelist: [ Ferrodae ]
+  sprites:
+  - sprite: _Carpmosia/Mobs/Customization/Ferrodae/jewelry.rsi
+    state: earring_left
+  coloring:
+    default:
+      type:
+        !type:SimpleColoring
+        color: "#DFC771"
+
+- type: marking
+  id: FerrodaeEarringRight
+  bodyPart: HeadSide
+  forcedColoring: false
+  groupWhitelist: [ Ferrodae ]
+  sprites:
+  - sprite: _Carpmosia/Mobs/Customization/Ferrodae/jewelry.rsi
+    state: earring_right
+  coloring:
+    default:
+      type:
+        !type:SimpleColoring
+        color: "#DFC771"
+
+- type: marking
+  id: FerrodaejewelryHorn
+  bodyPart: HeadSide
+  forcedColoring: false
+  groupWhitelist: [ Ferrodae ]
+  sprites:
+  - sprite: _Carpmosia/Mobs/Customization/Ferrodae/jewelry.rsi
+    state: horn
+  coloring:
+    default:
+      type:
+        !type:SimpleColoring
+        color: "#DFC771"
+
+- type: marking
+  id: FerrodaeTagLeft
+  bodyPart: HeadSide
+  forcedColoring: false
+  groupWhitelist: [ Ferrodae ]
+  sprites:
+  - sprite: _Carpmosia/Mobs/Customization/Ferrodae/jewelry.rsi
+    state: tag_left
+  coloring:
+    default:
+      type:
+        !type:SimpleColoring
+        color: "#DFC771"
+
+- type: marking
+  id: FerrodaeTagRight
+  bodyPart: HeadSide
+  forcedColoring: false
+  groupWhitelist: [ Ferrodae ]
+  sprites:
+  - sprite: _Carpmosia/Mobs/Customization/Ferrodae/jewelry.rsi
+    state: tag_right
+  coloring:
+    default:
+      type:
+        !type:SimpleColoring
+        color: "#DFC771"
+
+
+# Patterns
+- type: marking
+  id: FerrodaeTorsoFade
+  bodyPart: Chest
+  forcedColoring: false
+  groupWhitelist: [ Ferrodae ]
+  sprites:
+  - sprite: _Carpmosia/Mobs/Customization/Ferrodae/patterns.rsi
+    state: torso_fade
+  coloring:
+    default:
+      type:
+        !type:TattooColoring
+      fallbackColor: "#666666"
+
+- type: marking
+  id: FerrodaeRightArmFade
+  bodyPart: RArm
+  forcedColoring: false
+  groupWhitelist: [ Ferrodae ]
+  sprites:
+  - sprite: _Carpmosia/Mobs/Customization/Ferrodae/patterns.rsi
+    state: right_arm_fade
+  coloring:
+    default:
+      type:
+        !type:TattooColoring
+      fallbackColor: "#666666"
+
+- type: marking
+  id: FerrodaeLeftArmFade
+  bodyPart: LArm
+  forcedColoring: false
+  groupWhitelist: [ Ferrodae ]
+  sprites:
+  - sprite: _Carpmosia/Mobs/Customization/Ferrodae/patterns.rsi
+    state: left_arm_fade
+  coloring:
+    default:
+      type:
+        !type:TattooColoring
+      fallbackColor: "#666666"
+
+- type: marking
+  id: FerrodaeSpot
+  bodyPart: Chest
+  forcedColoring: false
+  groupWhitelist: [ Ferrodae ]
+  sprites:
+  - sprite: _Carpmosia/Mobs/Customization/Ferrodae/patterns.rsi
+    state: spot
+  coloring:
+    default:
+      type:
+        !type:TattooColoring
+      fallbackColor: "#666666"

@@ -1,0 +1,31 @@
+﻿{
+    "version": 1,
+    "license": "CC-BY-SA-3.0",
+    "copyright": "Made by ultrafiche on github.",
+    "size": {
+        "x": 32,
+        "y": 32
+    },
+    "states": [
+        {
+            "name": "earring_left",
+            "directions": 4
+        },
+        {
+            "name": "earring_right",
+            "directions": 4
+        },
+        {
+            "name": "horn",
+            "directions": 4
+        },
+        {
+            "name": "tag_left",
+            "directions": 4
+        },
+        {
+            "name": "tag_right",
+            "directions": 4
+        }
+    ]
+}

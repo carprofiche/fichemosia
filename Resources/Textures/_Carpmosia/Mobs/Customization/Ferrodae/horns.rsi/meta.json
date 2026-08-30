@@ -1,0 +1,47 @@
+﻿{
+    "version": 1,
+    "license": "CC-BY-SA-3.0",
+    "copyright": "Made by ultrafiche on github.",
+    "size": {
+        "x": 32,
+        "y": 32
+    },
+    "states": [
+        {
+            "name": "antlers",
+            "directions": 4
+        },
+        {
+            "name": "ayrshire",
+            "directions": 4
+        },
+        {
+            "name": "bighorn",
+            "directions": 4
+        },
+        {
+            "name": "poke",
+            "directions": 4
+        },
+        {
+            "name": "small_antlers",
+            "directions": 4
+        },
+        {
+            "name": "antlers_decoration",
+            "directions": 4
+        },
+        {
+            "name": "bighorn_decoration",
+            "directions": 4
+        },
+        {
+            "name": "poke_decoration",
+            "directions": 4
+        },
+        {
+            "name": "small_antlers_decoration",
+            "directions": 4
+        }
+    ]
+}
