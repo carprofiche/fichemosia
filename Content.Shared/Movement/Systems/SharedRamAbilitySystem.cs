@@ -2,7 +2,6 @@
 using Content.Shared.ActionBlocker;
 using Content.Shared.Actions;
 using Content.Shared.Actions.Components;
-using Content.Shared.IdentityManagement;
 using Content.Shared.Movement.Components;
 using Content.Shared.Popups;
 using Robust.Shared.Physics.Events;
@@ -13,8 +12,14 @@ using Content.Shared.Damage.Components;
 using Content.Shared.Damage.Systems;
 using Content.Shared.Gravity;
 using Content.Shared.Interaction.Components;
+using Content.Shared.Interaction.Events;
+using Content.Shared.Item;
 using Content.Shared.Jittering;
+using Content.Shared.Movement.Events;
 using Content.Shared.Standing;
+using Content.Shared.StatusEffectNew;
+using Content.Shared.Throwing;
+using Robust.Shared.Audio.Systems;
 
 namespace Content.Shared.Movement.Systems;
 
@@ -28,101 +33,113 @@ public sealed partial class SharedRamAbilitySystem : EntitySystem
     [Dependency] private IGameTiming _timing = default!;
     [Dependency] private SharedChatSystem _chat = default!;
     [Dependency] private SharedJitteringSystem _jitter = default!;
-    [Dependency] private ActionBlockerSystem _blockerSystem = default!;
+    [Dependency] private ActionBlockerSystem _blocker = default!;
     [Dependency] private SharedTransformSystem _xform = default!;
     [Dependency] private DamageableSystem _damage = default!;
     [Dependency] private SharedGravitySystem _gravity = default!;
     [Dependency] private StandingStateSystem _standing = default!;
+    [Dependency] private SharedAudioSystem _audio = default!;
+    [Dependency] private SharedMoverController _mover = default!;
+    [Dependency] private StatusEffectsSystem _status = default!;
+
 
     [Dependency] private EntityQuery<MovementSpeedModifierComponent> _modifierQuery;
     [Dependency] private EntityQuery<StaminaComponent> _stamQuery;
 
+    public override void Initialize()
+    {
+        SubscribeLocalEvent<ActiveRamComponent, UseAttemptEvent>(OnAttempt);
+        SubscribeLocalEvent<ActiveRamComponent, PickupAttemptEvent>(OnAttempt);
+        SubscribeLocalEvent<ActiveRamComponent, ThrowAttemptEvent>(OnAttempt);
+        SubscribeLocalEvent<ActiveRamComponent, AttackAttemptEvent>(OnAttempt);
+        SubscribeLocalEvent<ActiveRamComponent, ChangeDirectionAttemptEvent>(OnAttempt);
+    }
 
     public override void Update(float frameTime)
     {
         base.Update(frameTime);
 
-        var query = EntityQueryEnumerator<ActiveRamComponent, RamAbilityComponent>();
-        while (query.MoveNext(out var entity, out var state, out var ram))
+        var query = EntityQueryEnumerator<ActiveRamComponent, RamAbilityComponent, InputMoverComponent>();
+        while (query.MoveNext(out var entity, out var state, out var ram, out var moverComp))
         {
             // Do we have any transitions to set up?
             switch (state.LastState)
             {
                 case RamState.Initial:
                     state.LastState = RamState.Windup;
-                    Dirty(entity, state);
+                    DirtyField(entity, state, "LastState");
                     WindupTransition((entity, ram));
                     continue;
 
-                case RamState.Windup when _timing.CurTime >= state.WindupEndTimestamp:
+                case RamState.Windup when _timing.CurTime >= state.WindupEndTime:
                     state.LastState = RamState.Running;
-                    Dirty(entity, state);
+                    DirtyField(entity, state, "LastState");
                     RunTransition((entity, ram));
                     continue;
 
-                case RamState.Running when !_xform.InRange(Transform(entity).Coordinates, state.RunStartPos, ram.RamLength):
+                case RamState.Running when !_xform.InRange(Transform(entity).Coordinates, state.RunStartPos, ram.RunLength):
                     EndTransition(entity);
                     continue;
             }
 
             if (state.LastState is RamState.Windup)
+            {
                 continue;
+            }
 
-            // We can only be in the running state now.
-            var worldCardinal = GetWorldCardinalVec((entity, Transform(entity)));
-            var ramSpeed = GetRamSpeed((entity, ram));
-            _physics.SetLinearVelocity(entity, worldCardinal * ramSpeed);
+            _mover.SetSprinting((entity, moverComp), _timing.TickFraction, false);
+            moverComp.CurTickSprintMovement = state.Lock.ToVec();
+
+            moverComp.LastInputTick = _timing.CurTick;
+            moverComp.LastInputSubTick = ushort.MaxValue;
+            Dirty(entity, moverComp);
         }
     }
 
-    private float GetRamSpeed(Entity<RamAbilityComponent> entity)
-    {
-        return GetRamSpeed(entity, entity.Comp.RamSpeedModifier);
-    }
-
-    private float GetRamSpeed(Entity<ActiveRamComponent> entity)
-    {
-        return GetRamSpeed(entity, entity.Comp.RamSpeedModifier);
-    }
-
-    private float GetRamSpeed(EntityUid entity, float ramSpeedModifier)
-    {
-        var sprintSpeed = _modifierQuery.CompOrNull(entity)?.CurrentSprintSpeed ?? MovementSpeedModifierComponent.DefaultBaseSprintSpeed;
-        return sprintSpeed * ramSpeedModifier;
-    }
-
-    private Vector2 GetWorldCardinalVec(Entity<TransformComponent> entity)
-    {
-        var rotation = entity.Comp.LocalRotation;
-        var cardinalWorldRot = _xform.GetWorldRotation(entity.Owner) + (rotation - rotation.GetCardinalDir().ToAngle());
-        return cardinalWorldRot.ToWorldVec();
-    }
+    // _modifierQuery.CompOrNull(entity)?.CurrentSprintSpeed ?? MovementSpeedModifierComponent.DefaultBaseSprintSpeed
 
     private void WindupTransition(Entity<RamAbilityComponent> entity)
     {
-        var selfMessage = entity.Comp.WindUpPopupSelf.HasValue
-            ? Loc.GetString(entity.Comp.WindUpPopupSelf)
-            : null;
-        var othersMessage = entity.Comp.WindUpPopup.HasValue
-            ? Loc.GetString(entity.Comp.WindUpPopup, ("name", Identity.Entity(entity, EntityManager)))
-            : null;
-        _popup.PopupEntity(selfMessage, othersMessage, entity, entity, PopupType.MediumCaution);
+        if (_status.TrySetStatusEffectDuration(entity.Owner, MovementModStatusSystem.Ramming, out EntityUid? moveStatus))
+            _movementMod.TryUpdateMovementStatus(entity.Owner, moveStatus.Value, entity.Comp.WindupSpeedModifier);
 
-        _movementMod.TryAddMovementSpeedModDuration(entity,
-            MovementModStatusSystem.Ramming,
-            entity.Comp.WindUpDuration,
-            entity.Comp.WindUpSpeedModifier);
+        _jitter.DoJitter(entity, TimeSpan.FromSeconds(0.1), false, 5f, 2f);
+
+        var emoteLoc = entity.Comp.WindupEmote?.Text;
+        if (emoteLoc is not null)
+            _chat.TrySendInGameICMessage(entity.Owner, Loc.GetString(emoteLoc), InGameICChatType.Emote, false);
+
+        _audio.PlayPredicted(entity.Comp.WindupEmote?.Sound, entity.Owner, entity.Owner);
     }
 
     private void RunTransition(Entity<RamAbilityComponent> entity)
     {
-        EnsureComp<BlockMovementComponent>(entity);
-        _blockerSystem.UpdateCanMove(entity);
+        if (_status.TryGetStatusEffect(entity.Owner, MovementModStatusSystem.Ramming, out EntityUid? moveStatus))
+            _movementMod.TryUpdateMovementStatus(entity.Owner, moveStatus.Value, entity.Comp.RunSpeedModifier);
 
-        if (entity.Comp.RunEmote.HasValue)
-            _chat.TryEmoteWithChat(entity, entity.Comp.RunEmote);
+        _jitter.DoJitter(entity, TimeSpan.FromSeconds(0.1), false, 5f, 2f);
 
-        _jitter.DoJitter(entity, TimeSpan.FromSeconds(0.1), false);
+        var emoteLoc = entity.Comp.RunEmote?.Text;
+        if (emoteLoc != null)
+            _chat.TrySendInGameICMessage(entity.Owner, Loc.GetString(emoteLoc), InGameICChatType.Emote, false);
+
+        _audio.PlayPredicted(entity.Comp.RunEmote?.Sound, entity.Owner, entity.Owner);
+    }
+
+    private void EndTransition(EntityUid entity)
+    {
+        RemComp<ActiveRamComponent>(entity);
+        RemComp<NoRotateOnMoveComponent>(entity);
+
+        _status.TryRemoveStatusEffect(entity, MovementModStatusSystem.Ramming);
+        //_movementMod.TryUpdateMovementStatus(entity.Owner, moveStatus.Value, entity.Comp.RunSpeedModifier);
+
+        _stamina.TakeStaminaDamage(entity, _stamQuery.CompOrNull(entity)?.CritThreshold ?? 0, ignoreResist: true);
+    }
+
+    private void OnAttempt(EntityUid uid, ActiveRamComponent component, CancellableEntityEventArgs args)
+    {
+        args.Cancel();
     }
 
     [SubscribeLocalEvent]
@@ -131,23 +148,23 @@ public sealed partial class SharedRamAbilitySystem : EntitySystem
         if (entity.Comp.LastState != RamState.Running)
             return;
 
-        if (args.OtherFixture.Hard && entity.Comp.BonkDamage is not null)
-            _damage.TryChangeDamage(entity.Owner, entity.Comp.BonkDamage);
+        if (args.OtherFixture.Hard)
+        {
+            _physics.ApplyLinearImpulse(entity.Owner, Angle.FromDegrees(180).RotateVec(_xform.GetWorldRotation(entity.Owner).ToWorldVec()) * 50);
 
-        var impulseMod = entity.Comp.RamSpeedModifier * GetRamSpeed(entity);
-        var cardinal = GetWorldCardinalVec((entity.Owner, Transform(entity)));
-        _physics.ApplyLinearImpulse(entity.Owner, Angle.FromDegrees(180).RotateVec(cardinal) * (impulseMod * 25)); // bounce off lol
-        _stamina.TakeStaminaDamage(args.OtherEntity, _stamQuery.CompOrNull(args.OtherEntity)?.CritThreshold ?? 0);
+            if (entity.Comp.BonkDamage is not null)
+                _damage.TryChangeDamage(entity.Owner, entity.Comp.BonkDamage);
+
+            _audio.PlayPredicted(entity.Comp.BonkSound, entity.Owner, entity.Owner);
+        }
+
+        var crit = _stamQuery.CompOrNull(args.OtherEntity)?.CritThreshold;
+        _stamina.TakeStaminaDamage(args.OtherEntity, entity.Comp.OtherStaminaDamage ?? crit ?? 0);
+
+        if (_stamQuery.TryComp(args.OtherEntity, out StaminaComponent? otherStam))
+            Dirty<StaminaComponent>((args.OtherEntity, otherStam));
 
         EndTransition(entity.Owner);
-    }
-
-    private void EndTransition(EntityUid entity)
-    {
-        RemComp<ActiveRamComponent>(entity);
-        RemComp<BlockMovementComponent>(entity);
-        _blockerSystem.UpdateCanMove(entity);
-        _stamina.TakeStaminaDamage(entity, _stamQuery.CompOrNull(entity)?.CritThreshold ?? 0, ignoreResist: true);
     }
 
     [SubscribeLocalEvent]
@@ -161,13 +178,19 @@ public sealed partial class SharedRamAbilitySystem : EntitySystem
             _popup.PopupEntity(popup, entity.Owner, entity.Owner);
             return;
         }
-        _jitter.DoJitter(entity, TimeSpan.FromSeconds(0.1), false);
-        EnsureComp<ActiveRamComponent>(entity, out var state);
-        state.WindupEndTimestamp = _timing.CurTime + entity.Comp.WindUpDuration;
+
+        EnsureComp<ActiveRamComponent>(entity.Owner, out var state);
+        EnsureComp<NoRotateOnMoveComponent>(entity.Owner);
+        state.WindupEndTime = _timing.CurTime + entity.Comp.WindupDuration;
         state.RunStartPos = Transform(entity).Coordinates;
-        state.RamSpeedModifier = entity.Comp.RamSpeedModifier;
+        state.RunSpeedModifier = entity.Comp.RunSpeedModifier;
         state.BonkDamage = entity.Comp.BonkDamage;
-        Dirty(entity, state);
+        state.BonkSound = entity.Comp.BonkSound;
+        state.OtherStaminaDamage = entity.Comp.OtherStaminaDamage;
+        state.Lock = Transform(entity).LocalRotation.GetCardinalDir();
+        Dirty(entity.Owner, state);
+
+        _xform.SetLocalRotation(entity.Owner, state.Lock.ToAngle());
 
         args.Handled = true;
     }
