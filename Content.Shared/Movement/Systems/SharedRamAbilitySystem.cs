@@ -34,8 +34,6 @@ public sealed partial class SharedRamAbilitySystem : EntitySystem
     [Dependency] private SharedGravitySystem _gravity = default!;
     [Dependency] private StandingStateSystem _standing = default!;
 
-
-
     [Dependency] private EntityQuery<MovementSpeedModifierComponent> _modifierQuery;
     [Dependency] private EntityQuery<StaminaComponent> _stamQuery;
 
