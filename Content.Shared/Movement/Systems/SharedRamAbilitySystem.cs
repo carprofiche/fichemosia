@@ -1,6 +1,4 @@
-﻿using System.Numerics;
-using Content.Shared.ActionBlocker;
-using Content.Shared.Actions;
+﻿using Content.Shared.Actions;
 using Content.Shared.Actions.Components;
 using Content.Shared.Movement.Components;
 using Content.Shared.Popups;
@@ -11,11 +9,9 @@ using Content.Shared.Chat;
 using Content.Shared.Damage.Components;
 using Content.Shared.Damage.Systems;
 using Content.Shared.Gravity;
-using Content.Shared.Interaction.Components;
 using Content.Shared.Interaction.Events;
 using Content.Shared.Item;
 using Content.Shared.Jittering;
-using Content.Shared.Movement.Events;
 using Content.Shared.Standing;
 using Content.Shared.StatusEffectNew;
 using Content.Shared.Throwing;
@@ -33,7 +29,6 @@ public sealed partial class SharedRamAbilitySystem : EntitySystem
     [Dependency] private IGameTiming _timing = default!;
     [Dependency] private SharedChatSystem _chat = default!;
     [Dependency] private SharedJitteringSystem _jitter = default!;
-    [Dependency] private ActionBlockerSystem _blocker = default!;
     [Dependency] private SharedTransformSystem _xform = default!;
     [Dependency] private DamageableSystem _damage = default!;
     [Dependency] private SharedGravitySystem _gravity = default!;
@@ -42,8 +37,6 @@ public sealed partial class SharedRamAbilitySystem : EntitySystem
     [Dependency] private SharedMoverController _mover = default!;
     [Dependency] private StatusEffectsSystem _status = default!;
 
-
-    [Dependency] private EntityQuery<MovementSpeedModifierComponent> _modifierQuery;
     [Dependency] private EntityQuery<StaminaComponent> _stamQuery;
 
     public override void Initialize()
@@ -68,13 +61,33 @@ public sealed partial class SharedRamAbilitySystem : EntitySystem
                 case RamState.Initial:
                     state.LastState = RamState.Windup;
                     DirtyField(entity, state, "LastState");
-                    WindupTransition((entity, ram));
+
+                    if (_status.TrySetStatusEffectDuration(entity, MovementModStatusSystem.Ramming, out EntityUid? moveStatus1))
+                        _movementMod.TryUpdateMovementStatus(entity, moveStatus1.Value, ram.WindupSpeedModifier);
+
+                    _jitter.DoJitter(entity, TimeSpan.FromSeconds(0.1), false, 5f, 2f);
+
+                    var windupEmote = ram.WindupEmote?.Text;
+                    if (windupEmote is not null)
+                        _chat.TrySendInGameICMessage(entity, Loc.GetString(windupEmote), InGameICChatType.Emote, false);
+
+                    _audio.PlayPredicted(ram.WindupEmote?.Sound, entity, entity);
                     continue;
 
                 case RamState.Windup when _timing.CurTime >= state.WindupEndTime:
                     state.LastState = RamState.Running;
                     DirtyField(entity, state, "LastState");
-                    RunTransition((entity, ram));
+
+                    if (_status.TryGetStatusEffect(entity, MovementModStatusSystem.Ramming, out EntityUid? moveStatus))
+                        _movementMod.TryUpdateMovementStatus(entity, moveStatus.Value, ram.RunSpeedModifier);
+
+                    _jitter.DoJitter(entity, TimeSpan.FromSeconds(0.1), false, 5f, 2f);
+
+                    var runEmote = ram.RunEmote?.Text;
+                    if (runEmote != null)
+                        _chat.TrySendInGameICMessage(entity, Loc.GetString(runEmote), InGameICChatType.Emote, false);
+
+                    _audio.PlayPredicted(ram.RunEmote?.Sound, entity, entity);
                     continue;
 
                 case RamState.Running when !_xform.InRange(Transform(entity).Coordinates, state.RunStartPos, ram.RunLength):
@@ -83,10 +96,9 @@ public sealed partial class SharedRamAbilitySystem : EntitySystem
             }
 
             if (state.LastState is RamState.Windup)
-            {
                 continue;
-            }
 
+            // We now can only be running.
             _mover.SetSprinting((entity, moverComp), _timing.TickFraction, false);
             moverComp.CurTickSprintMovement = state.Lock.ToVec();
 
@@ -96,50 +108,13 @@ public sealed partial class SharedRamAbilitySystem : EntitySystem
         }
     }
 
-    // _modifierQuery.CompOrNull(entity)?.CurrentSprintSpeed ?? MovementSpeedModifierComponent.DefaultBaseSprintSpeed
-
-    private void WindupTransition(Entity<RamAbilityComponent> entity)
-    {
-        if (_status.TrySetStatusEffectDuration(entity.Owner, MovementModStatusSystem.Ramming, out EntityUid? moveStatus))
-            _movementMod.TryUpdateMovementStatus(entity.Owner, moveStatus.Value, entity.Comp.WindupSpeedModifier);
-
-        _jitter.DoJitter(entity, TimeSpan.FromSeconds(0.1), false, 5f, 2f);
-
-        var emoteLoc = entity.Comp.WindupEmote?.Text;
-        if (emoteLoc is not null)
-            _chat.TrySendInGameICMessage(entity.Owner, Loc.GetString(emoteLoc), InGameICChatType.Emote, false);
-
-        _audio.PlayPredicted(entity.Comp.WindupEmote?.Sound, entity.Owner, entity.Owner);
-    }
-
-    private void RunTransition(Entity<RamAbilityComponent> entity)
-    {
-        if (_status.TryGetStatusEffect(entity.Owner, MovementModStatusSystem.Ramming, out EntityUid? moveStatus))
-            _movementMod.TryUpdateMovementStatus(entity.Owner, moveStatus.Value, entity.Comp.RunSpeedModifier);
-
-        _jitter.DoJitter(entity, TimeSpan.FromSeconds(0.1), false, 5f, 2f);
-
-        var emoteLoc = entity.Comp.RunEmote?.Text;
-        if (emoteLoc != null)
-            _chat.TrySendInGameICMessage(entity.Owner, Loc.GetString(emoteLoc), InGameICChatType.Emote, false);
-
-        _audio.PlayPredicted(entity.Comp.RunEmote?.Sound, entity.Owner, entity.Owner);
-    }
-
     private void EndTransition(EntityUid entity)
     {
         RemComp<ActiveRamComponent>(entity);
         RemComp<NoRotateOnMoveComponent>(entity);
 
         _status.TryRemoveStatusEffect(entity, MovementModStatusSystem.Ramming);
-        //_movementMod.TryUpdateMovementStatus(entity.Owner, moveStatus.Value, entity.Comp.RunSpeedModifier);
-
         _stamina.TakeStaminaDamage(entity, _stamQuery.CompOrNull(entity)?.CritThreshold ?? 0, ignoreResist: true);
-    }
-
-    private void OnAttempt(EntityUid uid, ActiveRamComponent component, CancellableEntityEventArgs args)
-    {
-        args.Cancel();
     }
 
     [SubscribeLocalEvent]
@@ -148,7 +123,7 @@ public sealed partial class SharedRamAbilitySystem : EntitySystem
         if (entity.Comp.LastState != RamState.Running)
             return;
 
-        if (args.OtherFixture.Hard)
+        if (args.OurFixture.Hard && args.OtherFixture.Hard)
         {
             _physics.ApplyLinearImpulse(entity.Owner, Angle.FromDegrees(180).RotateVec(_xform.GetWorldRotation(entity.Owner).ToWorldVec()) * 1000);
 
@@ -167,6 +142,11 @@ public sealed partial class SharedRamAbilitySystem : EntitySystem
         EndTransition(entity.Owner);
     }
 
+    private void OnAttempt(EntityUid uid, ActiveRamComponent component, CancellableEntityEventArgs args)
+    {
+        args.Cancel();
+    }
+
     [SubscribeLocalEvent]
     private void OnRam(Entity<RamAbilityComponent> entity, ref RamEvent args)
     {
@@ -183,7 +163,6 @@ public sealed partial class SharedRamAbilitySystem : EntitySystem
         EnsureComp<NoRotateOnMoveComponent>(entity.Owner);
         state.WindupEndTime = _timing.CurTime + entity.Comp.WindupDuration;
         state.RunStartPos = Transform(entity).Coordinates;
-        state.RunSpeedModifier = entity.Comp.RunSpeedModifier;
         state.BonkDamage = entity.Comp.BonkDamage;
         state.BonkSound = entity.Comp.BonkSound;
         state.OtherStaminaDamage = entity.Comp.OtherStaminaDamage;

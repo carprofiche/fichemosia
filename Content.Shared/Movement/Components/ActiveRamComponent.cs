@@ -24,9 +24,6 @@ public sealed partial class ActiveRamComponent : Component
     public EntityCoordinates RunStartPos;
 
     [AutoNetworkedField]
-    public float RunSpeedModifier;
-
-    [AutoNetworkedField]
     public DamageSpecifier? BonkDamage;
 
     [AutoNetworkedField]
