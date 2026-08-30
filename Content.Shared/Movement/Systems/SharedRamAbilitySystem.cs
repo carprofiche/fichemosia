@@ -150,7 +150,7 @@ public sealed partial class SharedRamAbilitySystem : EntitySystem
 
         if (args.OtherFixture.Hard)
         {
-            _physics.ApplyLinearImpulse(entity.Owner, Angle.FromDegrees(180).RotateVec(_xform.GetWorldRotation(entity.Owner).ToWorldVec()) * 50);
+            _physics.ApplyLinearImpulse(entity.Owner, Angle.FromDegrees(180).RotateVec(_xform.GetWorldRotation(entity.Owner).ToWorldVec()) * 1000);
 
             if (entity.Comp.BonkDamage is not null)
                 _damage.TryChangeDamage(entity.Owner, entity.Comp.BonkDamage);
