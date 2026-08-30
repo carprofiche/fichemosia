@@ -41,7 +41,7 @@ public sealed partial class RamAbilityComponent : Component
     /// The duration of the windup.
     /// </summary>
     [DataField, AutoNetworkedField]
-    public TimeSpan WindupDuration = TimeSpan.FromSeconds(1.25);
+    public TimeSpan WindupDuration = TimeSpan.FromSeconds(2);
 
     /// <summary>
     /// Speed modifier applied to the entity during the windup.
@@ -53,7 +53,7 @@ public sealed partial class RamAbilityComponent : Component
     /// Shown as an emote at the start of the windup.
     /// </summary>
     [DataField, AutoNetworkedField]
-    public (LocId? Text, SoundSpecifier? Sound)? WindupEmote = ("ram-ability-windup", new SoundPathSpecifier("/Audio/Effects/Footsteps/wood4.ogg"));
+    public (LocId? Text, SoundSpecifier? Sound)? WindupEmote = ("ram-ability-windup", new SoundPathSpecifier("/Audio/_Carpmosia/Effects/gallop.ogg"));
 
     #endregion
 
@@ -63,25 +63,19 @@ public sealed partial class RamAbilityComponent : Component
     /// The length of the ram in tiles.
     /// </summary>
     [DataField, AutoNetworkedField]
-    public float RunLength = 5f;
+    public float RunLength = 6f;
 
     /// <summary>
     /// How fast the ram will move forward, applied against the entity's sprint speed.
     /// </summary>
     [DataField, AutoNetworkedField]
-    public float RunSpeedModifier = 3f;
+    public float RunSpeedModifier = 1.25f;
 
     /// <summary>
     /// Shown as an emote at the start of the run.
     /// </summary>
     [DataField, AutoNetworkedField]
-    public (LocId? Text, SoundSpecifier? Sound) RunEmote = ("ram-ability-run", new SoundPathSpecifier("/Audio/Effects/Footsteps/wood4.ogg"));
-
-    /// <summary>
-    /// Used as a step sound during the run segment.
-    /// </summary>
-    [DataField, AutoNetworkedField]
-    public SoundSpecifier? RunStepSound = new SoundPathSpecifier("/Audio/Effects/Footsteps/wood4.ogg");
+    public (LocId? Text, SoundSpecifier? Sound)? RunEmote = ("ram-ability-run", new SoundPathSpecifier("/Audio/_Carpmosia/Effects/gallop.ogg"));
 
     #endregion
 
@@ -99,16 +93,22 @@ public sealed partial class RamAbilityComponent : Component
     /// If null, will guarantee stamcrit.
     /// </summary>
     [DataField, AutoNetworkedField]
-    public float? OtherStaminaDamage;
+    public float? OtherStaminaDamage = 100;
 
     /// <summary>
-    /// Damage dealt when hitting something a hard fixture (solid collision).
+    /// Damage dealt when hitting something with a hard fixture.
     /// </summary>
     [DataField, AutoNetworkedField]
-    public DamageSpecifier? BonkDamage;
+    public DamageSpecifier? BonkDamage = new()
+    {
+        DamageDict = new()
+        {
+            { "Blunt", 20 }, // OWWWW
+        },
+    };
 
     /// <summary>
-    /// Damage dealt when hitting something a hard fixture (solid collision).
+    /// Damage dealt when hitting something with a hard fixture.
     /// </summary>
     [DataField, AutoNetworkedField]
     public SoundSpecifier? BonkSound = new SoundPathSpecifier("/Audio/Effects/hit_kick.ogg");

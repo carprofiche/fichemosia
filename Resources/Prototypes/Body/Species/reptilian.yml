@@ -118,6 +118,7 @@
   id: MobReptilian
   name: Urist McScales
   components:
+  - type: RamAbility
   - type: Puller
     needsHands: false
   - type: Butcherable
